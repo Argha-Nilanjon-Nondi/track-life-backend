@@ -1,0 +1,65 @@
+# Python bytecode files
+*.pyc
+*.pyo
+*.pyd
+__pycache__
+*.so
+
+# Virtual environment directories
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Django settings secrets (e.g., secret key, database config)
+*.env
+*.ini
+
+# Database files
+db.sqlite3
+
+# Media files (uploaded files by users)
+media/
+
+# Static files (if you don't want to track generated static files in git)
+static/
+
+# Django migration files (sometimes it's good to ignore these)
+migrations/
+
+# PyCharm IDE config
+.idea/
+
+# VSCode config files
+.vscode/
+
+# macOS Finder attributes
+.DS_Store
+
+# Windows thumbnails and system files
+Thumbs.db
+Desktop.ini
+
+# Log files
+*.log
+
+# Coverage reports (if you use pytest, coverage, etc.)
+.coverage
+*.cover
+nosetests.xml
+coverage.xml
+*.hypothesis/
+
+# Sentry (Error tracking service) config files
+sentry.conf.py
+.sentrycli/
+
+# Flask-related (if you also work with Flask)
+instance/
+
+# Local development settings, if any
+local_settings.py
+
+#helper
+helper.py
