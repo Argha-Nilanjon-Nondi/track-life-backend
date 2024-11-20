@@ -89,7 +89,7 @@ class IntegerFieldSerializer(serializers.Serializer):
 
         try:
             validated_data = field.run_validation(value)
-            return validated_data
+            return {"value":validated_data,"parameter":None}
         except ValidationError as e:
             raise serializers.ValidationError(e.detail)
         
@@ -108,7 +108,27 @@ class TextFieldSerializer(serializers.Serializer):
 
         try:
             validated_data = field.run_validation(value)
-            return validated_data
+            return {"value":validated_data,"parameter":None}
+        except ValidationError as e:
+            raise serializers.ValidationError(e.detail)
+        
+
+class ImageFieldSerializer(serializers.Serializer):
+
+    def to_internal_value(self, data):
+        return data
+
+    def validate(self, data):
+        value=data["value"]
+        parameter=data["parameter"]
+
+        field = serializers.ImageField(allow_empty_file=False)
+
+
+
+        try:
+            validated_data = field.run_validation(value)
+            return {"value":validated_data,"parameter":None}
         except ValidationError as e:
             raise serializers.ValidationError(e.detail)
         
@@ -116,5 +136,5 @@ class TextFieldSerializer(serializers.Serializer):
 
 # obj=IntegerFieldSerializer(data={"value":"9i","validation_data":None})
 # print(obj.is_valid())
-# print(obj.validated_data)
+# print(obj.validated_data) ---> return data type is not list and dict rather single type like int , string , float
     

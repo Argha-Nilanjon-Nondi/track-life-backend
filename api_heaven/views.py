@@ -8,17 +8,39 @@ import importlib
 from track_life_back.settings import FLEX_TABLE_STRUCTURE
 from .serializers import EmailTokenObtainPairSerializer,FlexTableSerializer
 from .middlewares import simple_decorator,table_acess_middleware
-from .models import FlexTable
+from .models import FlexTable,FlexRecordTable
 
+def get_class_from_settings(class_path):
+    if(class_path==None):
+        return None
+    module_path, class_name = class_path.rsplit('.', 1)
+    module = importlib.import_module(module_path)
+    return getattr(module, class_name)
 
 class EmailTokenObtainPairView(TokenViewBase):
     serializer_class = EmailTokenObtainPairSerializer
 
 
-def get_class_from_settings(class_path):
-    module_path, class_name = class_path.rsplit('.', 1)
-    module = importlib.import_module(module_path)
-    return getattr(module, class_name)
+def save_fields_indatabase(data_bucket):
+    prepared_data={}
+    for field in data_bucket:
+        field_type=data_bucket[field]["type"]
+        field_data=data_bucket[field]["data"]
+
+        field_postsave_defination=FLEX_TABLE_STRUCTURE["type"][field_type]["post_save"]
+        postsave_function=get_class_from_settings(field_postsave_defination)
+
+        if(postsave_function!=None):
+            task=postsave_function(field_data)
+            prepared_data[field]={"file_id":task["file_id"]}
+            
+        else:
+            field_value=data_bucket[field]["data"]["value"]
+            prepared_data[field]=field_value
+
+        
+    return prepared_data
+
 
 @api_view(["GET"])
 @simple_decorator
@@ -50,7 +72,6 @@ def create_table(request):
 @permission_classes([IsAuthenticated])
 @table_acess_middleware
 def add_to_table(request,table_uuid):
-    print(request.age)
     single_table=FlexTable.objects.get(id=table_uuid)
     table_structure=single_table.table_structure
 
@@ -76,11 +97,20 @@ def add_to_table(request,table_uuid):
         if(serializer_obj.is_valid()==False):
             return Response(serializer_obj.errors, status=status.HTTP_400_BAD_REQUEST)
         
-        post_data_bag[field]={"value":serializer_obj.validated_data,
-                              "type":field_type,
-                              "parameter":field_parameter}
+        post_data_bag[field]={"data":serializer_obj.validated_data,
+                              "type":field_type,}
+
+
 
         print(post_data_bag)
+
+    
+    prepared_data=save_fields_indatabase(post_data_bag)
+
+    record=FlexRecordTable.objects.create(
+        flex_table=single_table,
+        data_structure=prepared_data
+    )
         
 
     return Response("success")

@@ -1,6 +1,7 @@
 
 from datetime import timedelta
 from pathlib import Path
+import os
 #from api_heaven.serializers import IntegerFieldSerializer
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -101,17 +102,30 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# URL to access media files
+MEDIA_URL = '/media/'
+
+# Directory on the server where media files will be stored
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 
 FLEX_TABLE_STRUCTURE={
     "type":{
 
         "integer":{
             "serializer":"api_heaven.serializers.IntegerFieldSerializer",
+            "post_save":None
         },
 
         "text":{
             "serializer":"api_heaven.serializers.TextFieldSerializer",
+            "post_save":None
         },
+
+        "image":{
+            "serializer":"api_heaven.serializers.ImageFieldSerializer",
+            "post_save":"api_heaven.post_save.image_post_process"
+        }
 
 
     }
