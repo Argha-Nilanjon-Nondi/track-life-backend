@@ -4,42 +4,19 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view,permission_classes
-import importlib
 from track_life_back.settings import FLEX_TABLE_STRUCTURE
 from .serializers import EmailTokenObtainPairSerializer,FlexTableSerializer
 from .middlewares import simple_decorator,table_acess_middleware
 from .models import FlexTable,FlexRecordTable
+from .utils import get_instance_from_settings,validate_fields,prepare_data_createRecord,fill_undefined_column
 
-def get_class_from_settings(class_path):
-    if(class_path==None):
-        return None
-    module_path, class_name = class_path.rsplit('.', 1)
-    module = importlib.import_module(module_path)
-    return getattr(module, class_name)
+
 
 class EmailTokenObtainPairView(TokenViewBase):
     serializer_class = EmailTokenObtainPairSerializer
 
 
-def save_fields_indatabase(data_bucket):
-    prepared_data={}
-    for field in data_bucket:
-        field_type=data_bucket[field]["type"]
-        field_data=data_bucket[field]["data"]
 
-        field_postsave_defination=FLEX_TABLE_STRUCTURE["type"][field_type]["post_save"]
-        postsave_function=get_class_from_settings(field_postsave_defination)
-
-        if(postsave_function!=None):
-            task=postsave_function(field_data)
-            prepared_data[field]={"file_id":task["file_id"]}
-            
-        else:
-            field_value=data_bucket[field]["data"]["value"]
-            prepared_data[field]=field_value
-
-        
-    return prepared_data
 
 
 @api_view(["GET"])
@@ -73,45 +50,29 @@ def create_table(request):
 @table_acess_middleware
 def add_to_table(request,table_uuid):
     single_table=FlexTable.objects.get(id=table_uuid)
-    table_structure=single_table.table_structure
-
-    post_data_bag={
-
-    }
     
-    for field in request.data:
 
-        # data that is sent by the client or browser
-        req_field_value=request.data[field]
+    validate_state=validate_fields(table_instance=single_table,data_dict=request.data)
 
-        # get the field type and validation parameter from the table
-        field_type=table_structure["column"][field]["type"]
-        field_parameter=table_structure["column"][field]["parameter"]
-        
-        # get string defination of validation serializer class from settings.py 
-        # and convert it to actual class
-        field_serializer_defination=FLEX_TABLE_STRUCTURE["type"][field_type]["serializer"]
-        serializer_class=get_class_from_settings(field_serializer_defination)
-
-        serializer_obj=serializer_class(data={"value":req_field_value,"parameter":field_parameter})
-        if(serializer_obj.is_valid()==False):
-            return Response(serializer_obj.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-        post_data_bag[field]={"data":serializer_obj.validated_data,
-                              "type":field_type,}
-
-
-
-        print(post_data_bag)
+    validation_status=validate_state["validation_status"]
+    validation_msg=validate_state["validation_msg"]
+    post_data_bag=validate_state["data_bag"]
+    
+   
+    if(validation_status==False):
+        return Response(validation_msg, status=status.HTTP_400_BAD_REQUEST)
 
     
-    prepared_data=save_fields_indatabase(post_data_bag)
+    prepared_data=prepare_data_createRecord(post_data_bag)
+
+    final_data=fill_undefined_column(table_instance=single_table,data_dict=prepared_data)
 
     record=FlexRecordTable.objects.create(
         flex_table=single_table,
-        data_structure=prepared_data
+        data_structure=final_data
     )
         
+    print(record.id)
 
     return Response("success")
 
@@ -123,4 +84,36 @@ def add_to_table(request,table_uuid):
 
     
 
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+@table_acess_middleware
+def update_record(request,table_uuid,record_uuid):
+    single_table=FlexTable.objects.get(id=table_uuid)
+
+    print(table_uuid,record_uuid)
+    
+
+    # validate_state=validate_fields(table_instance=single_table,data_dict=request.data)
+
+    # validation_status=validate_state["validation_status"]
+    # validation_msg=validate_state["validation_msg"]
+    # post_data_bag=validate_state["data_bag"]
+    
+   
+    # if(validation_status==False):
+    #     return Response(validation_msg, status=status.HTTP_400_BAD_REQUEST)
+
+    
+    # prepared_data=prepare_data_createRecord(post_data_bag)
+
+    # final_data=fill_undefined_column(table_instance=single_table,data_dict=prepared_data)
+
+    # record=FlexRecordTable.objects.create(
+    #     flex_table=single_table,
+    #     data_structure=final_data
+    # )
+        
+    # print(record.id)
+
+    return Response("success")
 
