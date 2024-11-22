@@ -129,8 +129,8 @@ def prepare_data_createRecord(data_bucket):
         postsave_function=get_instance_from_settings(field_postsave_defination)
 
         if(postsave_function!=None):
-            task=postsave_function(field_data)
-            prepared_data[field]={"file_id":task["file_id"]}
+            task_return_state=postsave_function(field_data)
+            prepared_data[field]=task_return_state
             
         else:
             field_value=data_bucket[field]["data"]["value"]
@@ -138,6 +138,20 @@ def prepare_data_createRecord(data_bucket):
 
         
     return prepared_data
+
+
+def preUpdateOperation(record_instance,data_bucket):
+    """
+    The function is used to perform the operation before prepare data for saving like delete the old file
+    """
+    for field in data_bucket:
+        field_type=data_bucket[field]["type"]
+
+        field_postsave_defination=FLEX_TABLE_STRUCTURE["type"][field_type]["pre_update"]
+        preupdate_function=get_instance_from_settings(field_postsave_defination)
+
+        if(preupdate_function!=None):
+            preupdate_function(record_instance,field)
 
 
 def fill_undefined_column(table_instance,data_dict):

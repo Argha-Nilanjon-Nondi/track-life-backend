@@ -8,7 +8,7 @@ from track_life_back.settings import FLEX_TABLE_STRUCTURE
 from .serializers import EmailTokenObtainPairSerializer,FlexTableSerializer
 from .middlewares import simple_decorator,table_acess_middleware
 from .models import FlexTable,FlexRecordTable
-from .utils import get_instance_from_settings,validate_fields,prepare_data_createRecord,fill_undefined_column
+from .utils import validate_fields,prepare_data_createRecord,fill_undefined_column,preUpdateOperation
 
 
 
@@ -89,31 +89,30 @@ def add_to_table(request,table_uuid):
 @table_acess_middleware
 def update_record(request,table_uuid,record_uuid):
     single_table=FlexTable.objects.get(id=table_uuid)
+    single_record=FlexRecordTable.objects.get(id=record_uuid)
+    
+    validate_state=validate_fields(table_instance=single_table,data_dict=request.data)
 
-    print(table_uuid,record_uuid)
+    validation_status=validate_state["validation_status"]
+    validation_msg=validate_state["validation_msg"]
+    post_data_bag=validate_state["data_bag"]
+
+    if(validation_status==False):
+        return Response(validation_msg, status=status.HTTP_400_BAD_REQUEST)
+    
+    preUpdateOperation(record_instance=single_record,data_bucket=post_data_bag)
+
     
 
-    # validate_state=validate_fields(table_instance=single_table,data_dict=request.data)
-
-    # validation_status=validate_state["validation_status"]
-    # validation_msg=validate_state["validation_msg"]
-    # post_data_bag=validate_state["data_bag"]
     
-   
-    # if(validation_status==False):
-    #     return Response(validation_msg, status=status.HTTP_400_BAD_REQUEST)
+    prepared_data=prepare_data_createRecord(post_data_bag)
 
-    
-    # prepared_data=prepare_data_createRecord(post_data_bag)
+    for field in prepared_data:
+        single_record.data_structure[field]=prepared_data[field]
 
-    # final_data=fill_undefined_column(table_instance=single_table,data_dict=prepared_data)
+    single_record.save()
 
-    # record=FlexRecordTable.objects.create(
-    #     flex_table=single_table,
-    #     data_structure=final_data
-    # )
-        
-    # print(record.id)
+    print(single_record.id)
 
     return Response("success")
 
