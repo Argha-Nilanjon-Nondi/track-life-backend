@@ -124,6 +124,12 @@ FLEX_TABLE_STRUCTURE={
             "pre_update":None
         },
 
+        "date":{
+            "serializer":"api_heaven.serializers.DateFieldSerializer",
+            "pre_save":None,
+            "pre_update":None
+        },
+
         "image":{
             "serializer":"api_heaven.serializers.ImageFieldSerializer",
             "pre_save":"api_heaven.db_operation_helper.image_post_process",

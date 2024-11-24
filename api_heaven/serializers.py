@@ -76,6 +76,29 @@ class FlexTableSerializer(serializers.ModelSerializer):
 # fts=FlexTableSerializer(data={"table_name":"Hello Table","table_structure":input_data})
 # print(fts.is_valid())
 
+"""
+Starter code for a field serilizer .
+
+
+class ExampleFieldSerializer(serializers.Serializer):
+
+    def to_internal_value(self, data):
+        return data
+
+    def validate(self, data):
+        value=data["value"]
+        parameter=data["parameter"]
+
+        field = serializers.ExampleField() # act as helper from the rest_framework
+
+        try:
+            validated_data = field.run_validation(value)
+            return {"value":validated_data,"parameter":None}
+        except ValidationError as e:
+            raise serializers.ValidationError(e.detail)
+
+"""
+
 class IntegerFieldSerializer(serializers.Serializer):
 
     def to_internal_value(self, data):
@@ -93,6 +116,29 @@ class IntegerFieldSerializer(serializers.Serializer):
         except ValidationError as e:
             raise serializers.ValidationError(e.detail)
         
+
+class DateFieldSerializer(serializers.Serializer):
+
+    def to_internal_value(self, data):
+        return data
+
+    def validate(self, data):
+        value=data["value"]
+        parameter=data["parameter"]
+
+        field = serializers.DateField()
+
+        try:
+            validated_data = field.run_validation(value)
+            return {"value":str(validated_data),"parameter":None}
+        except ValidationError as e:
+            raise serializers.ValidationError(e.detail)
+
+
+# Using IntegerFieldSerializer
+# obj=IntegerFieldSerializer(data={"value":"90","parameter":None})
+# print(obj.is_valid())
+# print(obj.validated_data)        
 
 
 class TextFieldSerializer(serializers.Serializer):
@@ -132,9 +178,4 @@ class ImageFieldSerializer(serializers.Serializer):
         except ValidationError as e:
             raise serializers.ValidationError(e.detail)
         
-
-
-obj=IntegerFieldSerializer(data={"value":"90","parameter":None})
-print(obj.is_valid())
-print(obj.validated_data)
     

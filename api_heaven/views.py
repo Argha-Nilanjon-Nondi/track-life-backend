@@ -62,8 +62,8 @@ def add_to_table(request,table_uuid):
     if(validation_status==False):
         return Response(validation_msg, status=status.HTTP_400_BAD_REQUEST)
 
-    
     prepared_data=prepare_data_createRecord(post_data_bag)
+    
 
     final_data=fill_undefined_column(table_instance=single_table,data_dict=prepared_data)
 

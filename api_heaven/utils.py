@@ -44,7 +44,7 @@ def validate_fields(table_instance,data_dict):
          "column2":something,
          }
 
-         table_instance=Model.objects.get
+         table_instance=FlexTable.objects.get
 
      Outputs --->
           {
@@ -119,6 +119,32 @@ def prepare_data_createRecord(data_bucket):
     The function is used to prepare the data that will be saved in FlexRecordTable model in data_structure 
     field . It will make any necessary changes in the data like save add something or save a file before store 
     its file_id in data_structure .
+
+    Input : 
+         data_bucket={  
+              'money': {  
+                           'data': {
+                                      'value': 9000, 
+                                      'parameter': None
+                                    }, 
+                            'type': 'integer'
+                        },
+
+              'info': {
+                           'data': { 
+                                     'value': 'mother', 
+                                     'parameter': None
+                                    }, 
+                            'type': 'text'
+                        }
+        }
+
+    Output : 
+            {  
+              'money': 9000, 
+              'info': 'mother'
+            }
+
     """
     prepared_data={}
     for field in data_bucket:
@@ -142,7 +168,30 @@ def prepare_data_createRecord(data_bucket):
 
 def preUpdateOperation(record_instance,data_bucket):
     """
-    The function is used to perform the operation before prepare data for saving like delete the old file
+    The function is used to perform the operation before prepare data for saving like delete the old file .
+
+    Input: 
+           record_instance=FlexRecordTable.objects.get
+
+           data_bucket={
+                            "money": {
+                                        "data": {
+                                                  "value": 200,
+                                                  "parameter": None
+                                                },
+
+                                        "type": "integer"
+                                     },
+
+                            "info": {
+                                        "data": {
+                                                  "value": "jo",
+                                                  "parameter": None
+                                                },
+
+                                        "type": "text"
+                                    }
+                            }
     """
     for field in data_bucket:
         field_type=data_bucket[field]["type"]
@@ -155,6 +204,26 @@ def preUpdateOperation(record_instance,data_bucket):
 
 
 def fill_undefined_column(table_instance,data_dict):
+    """
+    Fill the fields that are not filled by user but present in the user defined 
+    table_struncture in FlexTable model
+
+    Input:
+          data_dict={  
+              'money': 9000, 
+              'info': 'mother'
+            }
+
+        table_instance=FlexTable.objects.get
+
+
+    Output:
+           { 
+            'money': 9000, 
+            'info': 'mother', 
+            'profile': None
+           }
+    """
     table_structure=table_instance.table_structure
     predined_fields=list(table_structure["column"])
     inputed_fields=list(data_dict)
