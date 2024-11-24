@@ -1,3 +1,40 @@
+### Setting for the api_heaven (settings.py)
+```python
+FLEX_TABLE_STRUCTURE={
+    "type":{
+
+        "integer":{
+            "serializer":"api_heaven.serializers.IntegerFieldSerializer",
+            "pre_save":None,
+            "pre_update":None
+        },
+
+        "text":{
+            "serializer":"api_heaven.serializers.TextFieldSerializer",
+            "pre_save":None,
+            "pre_update":None
+        },
+
+        "image":{
+            "serializer":"api_heaven.serializers.ImageFieldSerializer",
+            "pre_save":"api_heaven.db_operation_helper.image_post_process",
+            "pre_update":"api_heaven.db_operation_helper.delete_old_file"
+        }
+
+
+    }
+}
+```
+<strong>FLEX_TABLE_STRUCTURE</strong> variable contains the necessary configaration for database system . Like the datatypes that it can handle.
+Inside <strong>FLEX_TABLE_STRUCTURE</strong> there is <strong>type</strong> key that holds the available datatypes . Each datatype has some handlers . They are :
+- <strong>serializer</strong>
+  - A class that is responsible validating the datatype . It is a must in every datatype .
+- <strong>pre_save</strong>
+  - A function . It is used to perform necessary action for a field before creating a record in <strong>FlexRecordTable</strong> model .Like saving a image in <strong>FileStorageTable</strong> model before saving a record in <strong>image</strong> datatype .
+
+- <strong>pre_update</strong>
+  - A function . It is used to perform necessary action for a field before update a record in <strong>FlexRecordTable</strong> model .Like deleteing a image in <strong>FileStorageTable</strong> model before updating the <strong>image</strong> datatype .
+
 ### Adding a new field
 
 ##### Add a new datatype for the database system . A datatype hold some data under some conditions . 
@@ -65,7 +102,7 @@ FLEX_TABLE_STRUCTURE={
 
         "field_name":{
             "serializer":"app_name.file_name.serializer_class",
-            "post_save":None , # can be a fuction,
+            "pre_save":None , # can be a fuction,
             "pre_update":None # can be a fuction
         }
 
@@ -79,7 +116,7 @@ FLEX_TABLE_STRUCTURE={
 
         "integer":{
             "serializer":"api_heaven.serializers.IntegerFieldSerializer",
-            "post_save":None,
+            "pre_save":None,
             "pre_update":None
         }
 
