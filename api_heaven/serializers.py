@@ -134,7 +134,7 @@ class ImageFieldSerializer(serializers.Serializer):
         
 
 
-# obj=IntegerFieldSerializer(data={"value":"9i","validation_data":None})
-# print(obj.is_valid())
-# print(obj.validated_data) ---> return data type is not list and dict rather single type like int , string , float
+obj=IntegerFieldSerializer(data={"value":"90","parameter":None})
+print(obj.is_valid())
+print(obj.validated_data)
     

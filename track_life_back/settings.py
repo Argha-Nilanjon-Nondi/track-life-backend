@@ -114,19 +114,19 @@ FLEX_TABLE_STRUCTURE={
 
         "integer":{
             "serializer":"api_heaven.serializers.IntegerFieldSerializer",
-            "post_save":None,
+            "pre_save":None,
             "pre_update":None
         },
 
         "text":{
             "serializer":"api_heaven.serializers.TextFieldSerializer",
-            "post_save":None,
+            "pre_save":None,
             "pre_update":None
         },
 
         "image":{
             "serializer":"api_heaven.serializers.ImageFieldSerializer",
-            "post_save":"api_heaven.db_operation_helper.image_post_process",
+            "pre_save":"api_heaven.db_operation_helper.image_post_process",
             "pre_update":"api_heaven.db_operation_helper.delete_old_file"
         }
 

@@ -125,7 +125,7 @@ def prepare_data_createRecord(data_bucket):
         field_type=data_bucket[field]["type"]
         field_data=data_bucket[field]["data"]
 
-        field_postsave_defination=FLEX_TABLE_STRUCTURE["type"][field_type]["post_save"]
+        field_postsave_defination=FLEX_TABLE_STRUCTURE["type"][field_type]["pre_save"]
         postsave_function=get_instance_from_settings(field_postsave_defination)
 
         if(postsave_function!=None):
