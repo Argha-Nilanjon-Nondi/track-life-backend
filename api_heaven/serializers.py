@@ -6,6 +6,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from django.contrib.auth.models import update_last_login
 from .models import FlexTable
+from .utils import validate_column_structure
 
 User = get_user_model()
 
@@ -59,10 +60,12 @@ class FlexTableSerializer(serializers.ModelSerializer):
 
         table_structure=data["table_structure"]
 
-        for column in table_structure:
-
-            if(("column_name" not in column) or ("type" not in column) or ("data" not in column)):
-                raise serializers.ValidationError("Missing required keys in table_structure")
+        print("XXXXX")
+        print(table_structure)
+        
+        for column_structure in table_structure:
+            if(validate_column_structure(column_structure)==False):
+                raise serializers.ValidationError("Missing required keys in column_structure")
 
         return data
 

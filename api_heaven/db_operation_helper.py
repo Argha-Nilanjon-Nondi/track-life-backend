@@ -2,10 +2,14 @@ from api_heaven.models import FileStorageTable
 
 def image_post_process(data):
     """
-    data={
-          "value":  ,
-          "parameter": 
-    }
+    Input -->
+             data={
+                   "value":  ,
+                   "parameter": 
+             }
+
+    Output --->
+           return value (int , float , list , dict)
 
     saving the image is the model and return the id of the record
     """
@@ -20,6 +24,12 @@ def image_post_process(data):
     return {"file_id":file_id }
 
 def delete_old_file(record_instance,field):
+    """
+    Input --> 
+             record_instance=FlexRecordTable.objects.get
+             field = { the field or column name that is defined in (FlexRecordTable , keys of json) or (FlexTable-->table_structure-->column) }
+      
+    """
     file_field=record_instance.data_structure[field]
     if(file_field==None):
         return 0

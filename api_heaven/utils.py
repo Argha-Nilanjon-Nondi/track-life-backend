@@ -4,6 +4,169 @@ import importlib
 from random import randint
 from datetime import datetime
 from track_life_back.settings import FLEX_TABLE_STRUCTURE
+import re
+
+def is_valid_name(name: str) -> bool:
+    """
+    Validates a name based on specific rules.
+    Rules:
+    - Only alphabetic characters, spaces, hyphens (-), and apostrophes (') are allowed.
+    - No consecutive special characters (e.g., --, '', etc.).
+    - Cannot start or end with a special character or space.
+    - Must contain at least one alphabetic character.
+    
+    :param name: str, the name to validate.
+    :return: bool, True if the name is valid, False otherwise.
+    """
+    # Check if the name has invalid characters
+    if not re.match(r"^[a-zA-Z][a-zA-Z\s'-]*[a-zA-Z]$", name):
+        return False
+    
+    # Check for consecutive special characters or spaces
+    if re.search(r"[ \-']{2,}", name):
+        return False
+
+    return True
+
+def validate_column_structure(dict):
+    """
+    Input --->
+         dict={ "column_name":"Coding",
+                "type":"text",
+                "parameter":{}
+            }
+
+    Output ---->
+           return True or False
+    """
+    fields=list(dict)
+    required_fields=["column_name","type","parameter"]
+
+    for rf in required_fields:
+        if(rf not in fields):
+            return False
+        
+    column_name=dict["column_name"]
+    type_=dict["type"]
+    parameter=dict["parameter"]
+
+    available_field_types=list(FLEX_TABLE_STRUCTURE["type"])
+
+    if(is_valid_name(column_name)==False):
+        return False
+    
+    if(type_ not in available_field_types):
+        return False
+    
+    defined_required_paramter=FLEX_TABLE_STRUCTURE["type"][type_]["required_parameter"]
+
+    if(defined_required_paramter!=None):
+        # I will make the implementation later
+        # Input variable is parameter
+        pass
+
+    return True
+
+
+    """
+    Converts a variable name written in snake_case into a human-readable textual representation.
+    
+    :param variable_name: The snake_case string to convert.
+    :return: A string with words capitalized and separated by spaces.
+    """
+    # Split the variable name by underscores
+    words = variable_name.split('_')
+    # Capitalize each word and join with spaces
+    return ' '.join(word.capitalize() for word in words)
+
+def to_snake_case(textual_representation: str) -> str:
+    """
+    Converts a human-readable textual representation into snake_case.
+    
+    :param textual_representation: The textual representation to convert.
+    :return: A snake_case string.
+    """
+    # Split the textual representation by spaces
+    words = textual_representation.split()
+    # Lowercase each word and join with underscores
+    return '_'.join(word.lower() for word in words)
+
+def create_column_structure(dict):
+    """
+    Input --->
+            dict={ 
+                    "column_name":"Coding",
+                    "type":"text",
+                    "parameter":{}
+                }
+
+    Output -->
+              { 
+                'field': 'coding', 
+                'structure': {
+                               'type': 'text', 
+                               'represent': 'Coding', 
+                               'parameter': {}
+                            }
+                }
+    """
+    final_structure={
+        "field":None,
+        "structure":None
+    }
+
+    column_name=dict["column_name"]
+    type_=dict["type"]
+    parameter=dict["parameter"]
+
+    final_structure["field"]=to_snake_case(column_name)
+    final_structure["structure"]={ "type":type_ ,
+                                   "represent":column_name , 
+                                   "parameter":parameter
+                                }
+    
+    print(final_structure)
+
+    return final_structure
+
+def create_table_structure(list_):
+
+    """
+    Input -->
+              list_ = [ 
+                        { 
+                           'column_name': 'Coding', 
+                           'type': 'text', 
+                           'parameter': {}
+                         }
+                     ]
+
+    Output -->     
+                { 
+                  'column': {
+                              'coding': {
+                                          'type': 'text', 
+                                          'represent': 
+                                          'Coding', 'parameter': {}
+                                        }
+                            },
+                }
+     
+    """
+
+    final_structure={
+        "column":{
+
+        }
+    }
+
+    for column_blueprint in list_:
+        column_structure=create_column_structure(column_blueprint)
+        field_name=column_structure["field"]
+        field_structure=column_structure["structure"]
+        final_structure["column"][field_name]=field_structure
+
+    return final_structure
 
 def rename_file(instance, filename):
     # Get the file extension
@@ -119,6 +282,8 @@ def prepare_data_createRecord(data_bucket):
     The function is used to prepare the data that will be saved in FlexRecordTable model in data_structure 
     field . It will make any necessary changes in the data like save add something or save a file before store 
     its file_id in data_structure .
+    It runs the function for a field that is defined in 
+      settings.py --> FLEX_TABLE_STRUCTURE --> "type" --> "{the field}" --> "pre_save"
 
     Input : 
          data_bucket={  
@@ -169,6 +334,9 @@ def prepare_data_createRecord(data_bucket):
 def preUpdateOperation(record_instance,data_bucket):
     """
     The function is used to perform the operation before prepare data for saving like delete the old file .
+
+    It runs the function for a field that is defined in 
+      settings.py --> FLEX_TABLE_STRUCTURE --> "type" --> "{the field}" --> "pre_update"
 
     Input: 
            record_instance=FlexRecordTable.objects.get

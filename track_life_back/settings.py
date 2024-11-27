@@ -115,25 +115,29 @@ FLEX_TABLE_STRUCTURE={
         "integer":{
             "serializer":"api_heaven.serializers.IntegerFieldSerializer",
             "pre_save":None,
-            "pre_update":None
+            "pre_update":None,
+            "required_parameter":None
         },
 
         "text":{
             "serializer":"api_heaven.serializers.TextFieldSerializer",
             "pre_save":None,
-            "pre_update":None
+            "pre_update":None,
+            "required_parameter":None
         },
 
         "date":{
             "serializer":"api_heaven.serializers.DateFieldSerializer",
             "pre_save":None,
-            "pre_update":None
+            "pre_update":None,
+            "required_parameter":None
         },
 
         "image":{
             "serializer":"api_heaven.serializers.ImageFieldSerializer",
             "pre_save":"api_heaven.db_operation_helper.image_post_process",
-            "pre_update":"api_heaven.db_operation_helper.delete_old_file"
+            "pre_update":"api_heaven.db_operation_helper.delete_old_file",
+            "required_parameter":None
         }
 
 

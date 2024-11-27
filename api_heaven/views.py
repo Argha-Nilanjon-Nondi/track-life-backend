@@ -8,7 +8,7 @@ from track_life_back.settings import FLEX_TABLE_STRUCTURE
 from .serializers import EmailTokenObtainPairSerializer,FlexTableSerializer
 from .middlewares import simple_decorator,table_acess_middleware
 from .models import FlexTable,FlexRecordTable
-from .utils import validate_fields,prepare_data_createRecord,fill_undefined_column,preUpdateOperation
+from .utils import validate_fields,prepare_data_createRecord,fill_undefined_column,preUpdateOperation,create_table_structure
 
 
 
@@ -30,13 +30,13 @@ def profile(request):
 @permission_classes([IsAuthenticated])
 def create_table(request):
 
-    table_name=request.data["table_name"]
-    table_structure=request.data["table_structure"]
-
-
     serializer = FlexTableSerializer(data=request.data)
+
+
     if serializer.is_valid():
-        table=FlexTable(user=request.user,table_name=table_name,table_structure=table_structure)
+        table_name=serializer.validated_data["table_name"]
+        table_structure=serializer.validated_data["table_structure"]
+        table=FlexTable(user=request.user,table_name=table_name,table_structure=create_table_structure(table_structure))
         table.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
         
